@@ -1,9 +1,17 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
+import Home from './pages/Home';
+import Movie from './pages/Movie';
 
 function App() {
 	return (
 		<div className="App">
-			<h2>React Redux Toolkit with Saga Repo </h2>
+			<BrowserRouter>
+				<Routes>
+					<Route path="/" element={<Home />} />
+					<Route path="/movie/:id" element={<Movie />} />
+				</Routes>
+			</BrowserRouter>
 		</div>
 	);
 }
