@@ -1,0 +1,154 @@
+npm install @mui/material @mui/styles react-redux @reduxjs/toolkit  redux-saga react-router-dom axios dotenv
+
+create foders
+components
+pages
+redux
+.env
+
+
+Configure redux toolkit in the application
+
+(1) In redux folder create a file call store.js
+(2) Create a slice in redux folder 
+(3) Create APi.js
+(4) Saga.js
+(5) RootSaga.js
+
+
+
+
+
+(2)---->
+
+import { createSlice } from '@reduxjs/toolkit';
+
+const INITIAL_STATE = {
+	movieList: [],
+	movie: {},
+};
+
+const movieSlice = createSlice({
+	name: 'movie',
+	initialState: INITIAL_STATE,
+	
+});
+
+export default movieSlice.reducer;
+
+
+(1) createSagaMiddleware ,configureStore
+
+
+import { configureStore } from '@reduxjs/toolkit';
+import createSagaMiddleware from 'redux-saga';
+import movieReducer from './feature/movieSlice';
+
+import rootSaga from './rootSaga';
+
+const sagaMiddleware = createSagaMiddleware();
+
+const store = configureStore({
+	reducer: {
+		movie: movieReducer,
+	},
+	middleware: (getDefaultMiddleware) =>
+		getDefaultMiddleware().concat(sagaMiddleware),
+});
+
+///sagaMiddleware.run(rootSaga);
+
+export default store;
+
+///sagaMiddleware.run(rootSaga);
+
+export default store;
+
+
+go to the index.js
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+	<React.StrictMode>
+		<Provider store={store}>
+			<App />
+		</Provider>
+	</React.StrictMode>
+);
+
+
+
+
+-----Then write the action in the movieSlice -----
+
+const movieSlice = createSlice({
+	name: 'movie',
+	initialState: INITIAL_STATE,
+	reducers: {
+		getMovies(name) {
+			return name;
+		},
+		setMovies: (state, action) => {
+			state.movieList = action.payload;
+		},
+	},
+});
+
+export const { getMovies, setMovies } = movieSlice.actions;
+
+export default movieSlice.reducer;
+
+
+****** create the API for the end points api.js
+
+import axios from 'axios';
+
+export const API_ENDPOINT = `http://www.omdbapi.com/?i=tt3896198&apikey=${process.env.REACT_APP_MOVIE_API_KEY}`;
+
+//export const fetchMoviews= async (movieName) => {
+//return axios.get(`${API_ENDPOINT}&s=${movieName}`);
+//};
+
+export const fetchMoview = async (movieName) =>
+	axios.get(`${API_ENDPOINT}&s=${movieName}`);
+
+
+-------------------write saga.js file--------------
+
+import { takeLatest, fork, put, call } from 'redux-saga/effects';
+import { getMovies, setMovies } from './feature/movieSlice';
+import { fetchMoview } from '../redux/api';
+import { fetchMoviews } from './api';
+
+function* onLoadMoviesAsync({ payload }) {
+	try {
+		const movieName = payload;
+		const response = yield call(fetchMoviews, movieName);
+
+		if (response.status === 200) {
+			yield put(setMovies({ ...response.data }));
+		} else {
+		}
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+function* onLoadMovies() {
+	//// generator function
+	yield takeLatest(getMovies.type, onLoadMoviesAsync);
+}
+
+export const movieSaga = [fork(onLoadMovies)];
+
+
+-------edit rootSaga.js-----------------
+import { all } from 'redux-saga/effects';
+import { movieSaga } from './movieSaga';
+
+export default function* rootSaga() {
+	yield all([...movieSaga]);
+}
+
+
+in store.js uncomment sagaMiddleware.run(rootSaga);

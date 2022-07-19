@@ -1,9 +1,15 @@
-import React from 'react'
+import React from 'react';
+import Search from '../components/Search';
 
 const Home = () => {
-  return (
-    <div>Home</div>
-  )
-}
+	return (
+		<React.Fragment>
+			{/*SEARCH COMPONENT*/}
+			<Search />
 
-export default Home
+			{/*MOVIE LIST  COMPONENT*/}
+		</React.Fragment>
+	);
+};
+
+export default Home;
