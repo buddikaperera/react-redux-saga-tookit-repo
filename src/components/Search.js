@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { TextField } from '@mui/material';
 import useStyles from '../styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getMovies } from '../redux/feature/movieSlice';
 
 const Search = () => {
 	const [name, setName] = useState('spider');
 	const classes = useStyles();
 	const dispatch = useDispatch();
+
+	const {
+		movieList: { Error: error, Search: movieData },
+	} = useSelector((state) => ({ ...state.movie }));
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -27,6 +31,7 @@ const Search = () => {
 					sx={{ m: 1, width: '55ch' }}
 					onChange={(e) => setName(e.target.value)}
 				/>
+				{error && <p className={classes.error}>{error}</p>}
 			</form>
 		</div>
 	);
